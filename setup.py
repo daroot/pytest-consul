@@ -1,6 +1,23 @@
 from setuptools import setup, find_packages
 
 
+requires = {
+    'setup': [
+    ],
+    'install': [
+        'pytest',
+    ],
+    'tests': [
+        'pytest',
+        'pytest-cov',
+        'pytest-flake8',
+        'requests',
+    ],
+}
+
+requires['all'] = list({dep for deps in requires.values() for dep in deps})
+
+
 def readme():
     with open('README.md', 'r') as f:
         return f.read()
@@ -16,8 +33,10 @@ setup(
     license='WTFPL',
 
     packages=find_packages(),
-    install_requires=['pytest'],
-    tests_require=['pytest-flake8', 'requests', 'pytest-cov'],
+    setup_requires=requires['setup'],
+    install_requires=requires['install'],
+    tests_require=requires['tests'],
+    extras_require=requires,
     include_package_data=True,
     zip_safe=False,
     platforms='any',
