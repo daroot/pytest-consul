@@ -1,0 +1,23 @@
+language: python
+sudo: false
+
+matrix:
+  include:
+    - python: 2.7
+      env: TOXENV=py27
+    - python: 3.3
+      env: TOXENV=py33
+    - python: 3.4
+      env: TOXENV=py34
+    - python: 3.5
+      env: TOXENV=py35
+
+before_install:
+  - "wget https://releases.hashicorp.com/consul/0.6.4/consul_0.6.4_linux_amd64.zip"
+  - "unzip -d /tmp/consul consul_0.6.4_linux_amd64.zip "
+  - "export PATH=$PATH:/tmp/consul"
+install:
+  - "pip install -U pip setuptools"
+  - "pip install tox"
+script:
+  - "tox -- -rs"
