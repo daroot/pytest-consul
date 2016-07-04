@@ -24,7 +24,7 @@ def readme():
 
 setup(
     name='pytest-consul',
-    version='0.0.1',
+    version='0.0.2',
     description='pytest plugin with fixtures for testing consul aware apps',
     long_description=readme(),
     url='http://github.com/daroot/pytest-consul',
