@@ -20,7 +20,7 @@ def test_consul_server_write(consul):
                         data='eggs')
     resp.raise_for_status()
     assert resp.status_code in range(200, 206)
-    assert resp.content.decode('utf-8') == 'true'
+    assert resp.content.decode('utf-8').strip() == 'true'
 
 
 def test_consul_server_read(consul):

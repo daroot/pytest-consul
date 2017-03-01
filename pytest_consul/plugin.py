@@ -43,7 +43,12 @@ def _start_service(tmpdir, ports):
     # Set up our config.
     conf_path = tmpdir.join('config.json').strpath
     with open(conf_path, 'w') as outf:
-        json.dump({'ports': ports}, outf)
+        json.dump({
+            'ports': ports,
+            'performance': {
+                'raft_multiplier': 1,
+            },
+        }, outf)
 
     proc = Popen([plugin_state['consul_binary'],
                   'agent',

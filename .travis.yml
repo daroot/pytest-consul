@@ -1,5 +1,9 @@
 language: python
 sudo: false
+dist: trusty
+
+git:
+  depth: 2
 
 matrix:
   include:
@@ -13,11 +17,14 @@ matrix:
       env: TOXENV=py35
 
 before_install:
-  - "wget https://releases.hashicorp.com/consul/0.6.4/consul_0.6.4_linux_amd64.zip"
-  - "unzip -d /tmp/consul consul_0.6.4_linux_amd64.zip "
+  - "export CONSUL_VERSION=0.7.5"
+  - "echo https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip"
+  - "curl -O https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip"
+  - "unzip -d /tmp/consul consul_${CONSUL_VERSION}_linux_amd64.zip"
   - "export PATH=$PATH:/tmp/consul"
 install:
   - "pip install -U pip setuptools"
   - "pip install tox"
 script:
-  - "tox -- -rs"
+  - "tox -e $TOXENV"
+  - "tox -e cover"
