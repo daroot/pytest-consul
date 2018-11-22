@@ -10,8 +10,12 @@ plugin_state = {}
 
 # List of ports that consul agent exposes and that we'll need to override
 # via our config file.
-consul_ports = ('dns', 'http', 'https', 'rpc',
+consul_ports = ('dns', 'http', 'https', 'grpc',
                 'serf_lan', 'serf_wan', 'server')
+
+
+class ConsulConfigurationError(Exception):
+    """Exception for Consul configuration issues."""
 
 
 def pytest_addoption(parser):
@@ -50,18 +54,24 @@ def _start_service(tmpdir, ports):
             },
         }, outf)
 
+    # Check consul version is greater than 1.0
+    version = Popen(
+        [plugin_state['consul_binary'], '--version'],
+        stdout=PIPE, stderr=PIPE).stdout.read(100)
+
+    if 'v1' not in version.decode('utf-8'):
+        raise ConsulConfigurationError('Consul verison too low, requires >1.0')
+
     proc = Popen([plugin_state['consul_binary'],
                   'agent',
                   '-dev',
                   '-bind', '127.0.0.1',
-                  '-dc', 'pytest-consul',
+                  '-datacenter', 'pytest-consul',
                   '-config-file', conf_path],
                  stdout=PIPE, stderr=PIPE)
 
-    # Wait for it to be ready.
-    while True:
-        line = proc.stdout.readline()
-        if 'leader elected' in line.decode('utf-8'):
+    for line in proc.stdout:
+        if 'cluster leadership acquired' in line.decode('utf-8'):
             break
 
     return proc
