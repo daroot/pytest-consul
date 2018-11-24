@@ -17,7 +17,7 @@ matrix:
       env: TOXENV=py35
 
 before_install:
-  - "export CONSUL_VERSION=0.7.5"
+  - "export CONSUL_VERSION=1.4.0"
   - "echo https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip"
   - "curl -O https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip"
   - "unzip -d /tmp/consul consul_${CONSUL_VERSION}_linux_amd64.zip"
