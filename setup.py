@@ -3,6 +3,7 @@ from setuptools import setup, find_packages
 
 requires = {
     'setup': [
+        'configparser',
     ],
     'install': [
         'pytest',
@@ -11,6 +12,7 @@ requires = {
         'pytest',
         'pytest-cov',
         'pytest-flake8',
+        'pytest-timeout',
         'requests',
     ],
 }

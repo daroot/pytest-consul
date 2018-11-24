@@ -1,6 +1,8 @@
 import requests
 import base64
 
+import pytest
+
 # Note that we actually care about the order of these tests,
 # which is normally bad form, but in this case we're actually interested in the
 # behavior of the session scoped fixture across multiple test and that the
@@ -9,6 +11,7 @@ import base64
 # TODO: Consider using pytest-ordering to ensure order.
 
 
+@pytest.mark.timeout(10)
 def test_consul_server_write(consul):
     """
     Given a session consul fixture, we can get the appropriate http port and
@@ -23,6 +26,7 @@ def test_consul_server_write(consul):
     assert resp.content.decode('utf-8').strip() == 'true'
 
 
+@pytest.mark.timeout(10)
 def test_consul_server_read(consul):
     """
     Given the same session consul fixture used in the previous test, we
@@ -37,6 +41,7 @@ def test_consul_server_read(consul):
     assert val == 'eggs'
 
 
+@pytest.mark.timeout(10)
 def test_consul_server_clean(consul_clean):
     """
     A function scoped consul_clean fixture is not going to get the value

@@ -1,5 +1,6 @@
 import json
 import pytest
+import re
 import socket
 
 from subprocess import Popen, PIPE
@@ -43,6 +44,24 @@ def _acquire_ports():
     return {k: _find_unused_port() for k in consul_ports}
 
 
+consul_version_re = re.compile(r'Consul v?(\d+)\.(\d+)\.(\d+)')
+
+
+def _check_version():
+    # Check consul version is greater than 1.0
+    version = Popen(
+        [plugin_state['consul_binary'], '--version'],
+        stdout=PIPE, stderr=PIPE).stdout.read(100)
+
+    m = consul_version_re.match(version.decode('utf-8'))
+    if m is None:
+        raise ConsulConfigurationError('Unable to retrieve Consul version')
+    major, minor, patch = m.groups()
+    if not int(major) >= 1:
+        raise ConsulConfigurationError('Consul verison %s too low,'
+                                       'requires >1.0' % (version, ))
+
+
 def _start_service(tmpdir, ports):
     # Set up our config.
     conf_path = tmpdir.join('config.json').strpath
@@ -54,13 +73,7 @@ def _start_service(tmpdir, ports):
             },
         }, outf)
 
-    # Check consul version is greater than 1.0
-    version = Popen(
-        [plugin_state['consul_binary'], '--version'],
-        stdout=PIPE, stderr=PIPE).stdout.read(100)
-
-    if 'v1' not in version.decode('utf-8'):
-        raise ConsulConfigurationError('Consul verison too low, requires >1.0')
+    _check_version()
 
     proc = Popen([plugin_state['consul_binary'],
                   'agent',
@@ -70,7 +83,8 @@ def _start_service(tmpdir, ports):
                   '-config-file', conf_path],
                  stdout=PIPE, stderr=PIPE)
 
-    for line in proc.stdout:
+    while True:
+        line = proc.stdout.readline()
         if 'cluster leadership acquired' in line.decode('utf-8'):
             break
 
